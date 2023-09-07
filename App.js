@@ -16,6 +16,8 @@ export default function App() {
 	const [itemsList, setItemsList] = useState([]);
 	const [itemSelected, setItemSelected] = useState(null);
 	const [modalVisible, setModalVisible] = useState(false);
+	const [isEditing, setIsEditing] = useState(false);
+	const [editedText, setEditedText] = useState('');
 
 	const onHandleChangeItem = (text) => setTextValue(text);
 
@@ -35,9 +37,48 @@ export default function App() {
 			style={styles.itemContainer}
 			onPress={() => onHandleModal(index)}
 		>
-			<Text style={styles.textItem}>{item?.value}</Text>
+			{isEditing && itemSelected === index ? (
+				<TextInput
+					style={styles.editableText}
+					value={editedText}
+					onChangeText={(text) => setEditedText(text)}
+				/>
+			) : (
+				<Text style={styles.textItem}>{item?.value}</Text>
+			)}
+			{isEditing && itemSelected === index ? (
+				<TouchableOpacity
+					style={styles.saveButton} // Aplicar estilo de botón de guardar
+					onPress={() => onSaveEdit(index)}
+				>
+					<Text style={styles.saveButtonText}>Guardar</Text>
+				</TouchableOpacity>
+			) : (
+				<TouchableOpacity
+					style={styles.editButton} // Aplicar estilo de botón de editar
+					onPress={() => onEditItem(index)}
+				>
+					<Text style={styles.editButtonText}>Editar</Text>
+				</TouchableOpacity>
+			)}
 		</TouchableOpacity>
 	);
+
+	const onEditItem = (index) => {
+		setIsEditing(true);
+		setEditedText(itemsList[index].value);
+		setItemSelected(index);
+	};
+
+	const onSaveEdit = (index) => {
+		if (editedText !== '') {
+			const updatedList = [...itemsList];
+			updatedList[index].value = editedText;
+			setItemsList(updatedList);
+			setIsEditing(false);
+			setEditedText('');
+		}
+	};
 
 	const onHandleDelete = () => {
 		if (itemSelected !== null) {
@@ -76,11 +117,11 @@ export default function App() {
 				modalVisible={modalVisible}
 				onHandleDelete={onHandleDelete}
 				modalColors={{
-					background: '#ECEFF1', // Gris claro
-					headerBackground: '#512DA8', // Morado
-					headerText: '#FFFFFF', // Texto de encabezado en blanco
-					buttonBackground: '#7E57C2', // Azul claro
-					buttonText: '#FFFFFF', // Texto de botón en blanco
+					background: '#ECEFF1',
+					headerBackground: '#512DA8',
+					headerText: '#FFFFFF',
+					buttonBackground: '#7E57C2',
+					buttonText: '#FFFFFF',
 				}}
 			/>
 		</View>
@@ -92,19 +133,19 @@ const styles = StyleSheet.create({
 		flex: 1,
 		padding: 30,
 		paddingTop: 80,
-		backgroundColor: '#ECEFF1', // Gris claro
+		backgroundColor: '#ECEFF1',
 	},
 	title: {
 		fontSize: 35,
 		fontWeight: '500',
 		marginBottom: 25,
-		color: '#512DA8', // Morado
+		color: '#512DA8',
 	},
 	inputContainer: {
 		borderRadius: 10,
 		alignItems: 'center',
 		flexDirection: 'row',
-		backgroundColor: '#FFFFFF', // Blanco
+		backgroundColor: '#FFFFFF',
 		justifyContent: 'space-between',
 		paddingVertical: 5,
 		paddingHorizontal: 10,
@@ -115,29 +156,57 @@ const styles = StyleSheet.create({
 		height: 50,
 		fontSize: 17,
 		paddingLeft: 12,
-		color: '#37474F', // Gris azulado
+		color: '#37474F',
 	},
 	listContainer: {
 		marginTop: 25,
 	},
 	itemContainer: {
+		flexDirection: 'row',
+		justifyContent: 'space-between',
+		alignItems: 'center',
 		height: 40,
 		marginVertical: 10,
 		marginHorizontal: 5,
 		borderRadius: 10,
-		justifyContent: 'center',
-		backgroundColor: '#81C784', // Verde claro
+		backgroundColor: '#81C784',
 		shadowColor: '#81C784',
 		shadowOffset: { width: 0, height: 2 },
 		shadowOpacity: 0.5,
 		shadowRadius: 3,
 		elevation: 5,
+		paddingHorizontal: 10,
 	},
 	textItem: {
 		fontSize: 18,
-		paddingLeft: 15,
-		color: '#263238', // Gris oscuro
+		color: '#263238',
 		fontWeight: '600',
 		fontVariant: 'no-common-ligatures',
+	},
+	editableText: {
+		flex: 1,
+		fontSize: 18,
+		color: '#512DA8', // Cambia el colorcuando estás editando
+		fontWeight: '600',
+		fontVariant: 'no-common-ligatures',
+		padding: 0,
+	},
+	editButton: {
+		backgroundColor: '#512DA8',
+		paddingVertical: 5,
+		paddingHorizontal: 10,
+		borderRadius: 5,
+	},
+	editButtonText: {
+		color: '#FFFFFF',
+	},
+	saveButton: {
+		backgroundColor: '#7E57C2',
+		paddingVertical: 5,
+		paddingHorizontal: 10,
+		borderRadius: 5,
+	},
+	saveButtonText: {
+		color: '#FFFFFF',
 	},
 });
